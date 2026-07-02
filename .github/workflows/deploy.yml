@@ -11,43 +11,19 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup SSH key
         run: |
-          echo "${{ -----BEGIN RSA PRIVATE KEY-----
-MIIEpAIBAAKCAQEA7niR6CJw35kmPlOT2QZgsr5Bn1p8RkrsO2eQ0RWHRcnuoZ3P
-//Pkohn1rCokp/Ug0gLmgI+4bTdbChDwLdLA6lnF3bgepMyPi5j47shu9AhKEyak
-ziApg51nJfu7/peW6EYVJV5A8l+8VUM9OduGu/XOa1uH2kLraIKN6UjquQ2kp3Wz
-xFpKO/E3E8OuvFgPR+hEH4Ge5SHKw5uMfoZyd0h7sDXrQAJ1HkyEF3acbfupjcHJ
-2T+q3xpVE1D+ez+DJDXKbN79YM9aa6p5n0ol5Jwm0s4XAA+gzh9NteYz9mmxcNdl
-Tc0dN+9ivQMo2GgzoskfhBpIlHJ8mmkZHJQKEQIDAQABAoIBAQDRzwqwLf0Y/OmE
-1Iuz2cSh/npF9Zp5TdnhuhDTpBlL8Yoeb3ZdPvvdEvHu83UkwKqLmzmpysj8bkOO
-67Ak4NQSW8GWfTOY0tFIhOIfVAEqe1CQ4OMG540e2xGxfXW9XSnMWjyoj/CcTlao
-vWvUx6wXGwDtu64e/dmYLaUlpp29CO0EcDYMiRUYLTgwc8m1p/zKvXhdmErqZgdZ
-o8T7uNuTXt0hDHG30qoeQBPGAKt0fha+D9qrCKmUz6WEyGITY+yfwmkDSqDhWfsi
-Z5T7+mg/lnY+KncV70LAJcVnqb5vSn6L9cMg1iuYJk9UAmZRpPmsKUmsMmVFq4B0
-O/e/4gsBAoGBAPwan/P8Woe2wZhH169o9Gy1HZx1WNvItfJYfYzud2kIu1Bk/3XU
-wOGSQSX1pzYr+8vjEaE+ilhQ9Vm5FmXKOobtE7aJfPgSx1G1GswFFZVOE3Z/VeLi
-TAtoDXqfkCfuGivU+7mzX4eEb2MwMTzMY3vorGk+iMZphj8toEo0qUaZAoGBAPIo
-ApSNReJNxEyifVRnbpBbqCKHC9R8Q49AbYNAAm5NtCYFCfEO0UIQPBcV8erBL0BD
-/hC5GO55pRG1oKDqP634Kbp/irTa+Vza2WHBIuk7xaFnzP+ixUSGjI1SizoKyvVf
-9GUxpH6ak0T19wvfEqTckdygDTaMYd4za4lceyI5AoGAcQF6S8MFzanlU954Vz+j
-uQrisByF7Vcl//EcrkzCqAlq9ZmgTXBF2ZdWrq5T+ttybi1l3LKNDxOTN1nZKV2i
-KJMi8ALnSsgYIo8c6PEqgJfT750aoa4wyjglOp9F3jBD+Pvqro4yNyvtRjf3CjrQ
-KV3d0vteEhqBO9a28Cx06JkCgYBELeesE6qdcO/X89f9r7F9i5DnR8aY6PPMnYM3
-9Qm6LL6QBdMqv9VDGHcSuOcIBaRcH8ikxLi0TCOhvNWg+NM9FCYLkGVpTk3vSt7x
-mwNNT7rxGtypDRclmAxyrc7tZKSIOaAB7dw2mSblv6ry+LezGzcmOxn9RcE4Ypng
-bt1sYQKBgQD3NYRSgsyZyrUfQmqWzklEIMIL7tp7QzNj1qXFWO/TpVPHuMtiZTHR
-AVPiD8dOdOq6NhZh4dO5X1bdb4+EI1Eiyn3pPCPqS115s5FI8iNEDntxzngduSM3
-8RneuVr6OSAs8JFhdPVEwQFBI0oCpkJJPlCBFSohXptMmzpDi0hhQQ==
------END RSA PRIVATE KEY----- }}" > key.pem
+          echo "${{ secrets.EC2_KEY }}" > key.pem
           chmod 600 key.pem
 
       - name: Deploy to EC2
         run: |
           ssh -o StrictHostKeyChecking=no -i key.pem ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'EOF'
-            cd app || true
+            cd /home/ec2-user/app || true
+
+            git pull origin main || true
 
             docker stop webapp || true
             docker rm webapp || true
